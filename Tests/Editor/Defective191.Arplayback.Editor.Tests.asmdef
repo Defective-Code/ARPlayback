@@ -1,0 +1,14 @@
+{
+    "name": "Defective191.Arplayback.Editor.Tests",
+    "references": [
+        "Defective191.Arplayback.Editor",
+        "Defective191.Arplayback"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}

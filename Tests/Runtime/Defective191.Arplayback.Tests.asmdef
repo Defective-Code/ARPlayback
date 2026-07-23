@@ -1,0 +1,11 @@
+{
+    "name": "Defective191.Arplayback.Tests",
+    "references": [
+        "Defective191.Arplayback"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": []
+}

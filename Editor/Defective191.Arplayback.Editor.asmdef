@@ -1,0 +1,10 @@
+{
+    "name": "Defective191.Arplayback.Editor",
+    "references": [
+      "Defective191.Arplayback"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}
