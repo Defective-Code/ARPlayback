@@ -1,14 +1,19 @@
-<UXML xmlns="UnityEngine.UIElements">
-    <VisualElement name="playback-panel" style="flex-grow: 1; padding: 12px;">
-        <Label name="status-label" text="No recordings found." />
-        <Label name="selected-label" text="No file selected" style="margin-bottom: 8px;" />
-
-        <ListView name="recordings-list" style="flex-grow: 1; margin-bottom: 8px;" />
-
-        <VisualElement style="flex-direction: row;">
-            <Button name="play-button" text="Play" style="flex-grow: 1; margin-right: 4px;" />
-            <Button name="stop-button" text="Stop" style="flex-grow: 1; margin-right: 4px;" />
-            <Button name="refresh-button" text="Refresh" style="flex-grow: 1;" />
+<UXML xmlns="UnityEngine.UIElements" editor-extension-mode="False">
+    <VisualElement name="root-container" style="flex-grow: 1;">
+        <VisualElement name="ar-session-ui" style="flex-grow: 1; justify-content: center; position: absolute; width: 100%; height: 100%;">
+            <Button name="reset-anchor-button" text="Reset Anchor" style="position: relative; bottom: auto; left: auto; width: 150px; align-items: center; align-self: center; justify-content: flex-start;"/>
+            <Slider name="stabilization-loading" low-value="0" high-value="1" style="position: relative; bottom: auto; left: auto; right: auto; align-self: center; height: 29px; width: 256px; justify-content: flex-start;"/>
+        </VisualElement>
+        <VisualElement name="playback-panel" style="flex-grow: 1; padding: 12px; background-color: rgba(0, 0, 0, 0.725); color: rgb(255, 255, 255);">
+            <Label name="status-label" text="No recordings found."/>
+            <Label name="selected-label" text="No file selected" style="margin-bottom: 8px;"/>
+            <ListView name="recordings-list" style="flex-grow: 1; margin-bottom: 8px;"/>
+            <VisualElement style="flex-direction: row;">
+                <Button name="play-button" text="Play" style="flex-grow: 1; margin-right: 4px;"/>
+                <Button name="stop-button" text="Stop" style="flex-grow: 1; margin-right: 4px;"/>
+                <Button name="refresh-button" text="Refresh" style="flex-grow: 1;"/>
+            </VisualElement>
         </VisualElement>
     </VisualElement>
+    <Button name="toggle-panel-button" text="Toggle Panel" style="position: absolute; top: 8px; right: 8px; width: 100px;"/>
 </UXML>

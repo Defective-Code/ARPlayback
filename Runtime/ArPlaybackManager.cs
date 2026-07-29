@@ -1,10 +1,10 @@
 using Google.XR.ARCoreExtensions;
+using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.XR.ARCore;
 using UnityEngine.XR.ARFoundation;
-
 
 [RequireComponent(typeof(ARPlaybackManager))]
 public class ArPlaybackManager : MonoBehaviour
@@ -19,7 +19,9 @@ public class ArPlaybackManager : MonoBehaviour
     private bool playingBack; // are we playing back
 
     private ARCoreSessionSubsystem subsystem;
-    
+
+    public event Action SessionReset; // fires on both playback start AND stop, whenever we clear state
+
     private string PlaybackFolder => Path.Combine(Application.persistentDataPath, "Recordings");
 
     private void Awake()
@@ -52,8 +54,6 @@ public class ArPlaybackManager : MonoBehaviour
             return false;
         }
 
-        
-
         if (subsystem == null)
         {
             subsystem = arSession.subsystem as ARCoreSessionSubsystem;
@@ -65,6 +65,10 @@ public class ArPlaybackManager : MonoBehaviour
             }
 
         }
+
+        // Clear all trackables and anchor bookkeeping BEFORE starting playback,
+        // so the recorded session starts from a completely blank slate.
+        ClearSessionState();
 
         playingBack = true;
 
@@ -102,5 +106,15 @@ public class ArPlaybackManager : MonoBehaviour
 
         subsystem?.StopPlaybackUri();
         playingBack = false;
+
+        // Clear again on the way back to the live session, so it also starts blank.
+        ClearSessionState();
+    }
+
+    private void ClearSessionState()
+    {
+        arSession.Reset(); // destroys all trackables (anchors, tracked images, planes, etc.)
+        //anchorData.ResetAnchors(); // clear our own bookkeeping, since Reset() doesn't know about it
+        SessionReset?.Invoke(); // notify listeners (e.g. ImageTargetSession) to clear their own local state
     }
 }
