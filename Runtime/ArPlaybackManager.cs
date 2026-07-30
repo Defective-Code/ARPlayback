@@ -1,8 +1,8 @@
-using Google.XR.ARCoreExtensions;
 using System;
+using System.Collections;
 using System.IO;
+using Google.XR.ARCoreExtensions;
 using UnityEngine;
-using UnityEngine.UIElements;
 using UnityEngine.XR.ARCore;
 using UnityEngine.XR.ARFoundation;
 
@@ -10,17 +10,15 @@ using UnityEngine.XR.ARFoundation;
 public class ArPlaybackManager : MonoBehaviour
 {
     [SerializeField] private ARSession arSession;
-
-    // ARPlaybackManager is a MonoBehaviour provided by ARCore Extensions,
-    // usually living on the same GameObject as ARCoreExtensions/ARSession.
-    // Still used for stopping playback and reading status.
     [SerializeField] private ARPlaybackManager playbackManager;
 
-    private bool playingBack; // are we playing back
-
+    private bool playingBack;
     private ARCoreSessionSubsystem subsystem;
 
-    public event Action SessionReset; // fires on both playback start AND stop, whenever we clear state
+    public event Action SessionReset;
+    public event Action<bool> PlaybackStartResult; // fires once we actually know if playback started
+
+    private const float ResetTimeoutSeconds = 5f;
 
     private string PlaybackFolder => Path.Combine(Application.persistentDataPath, "Recordings");
 
@@ -37,21 +35,21 @@ public class ArPlaybackManager : MonoBehaviour
                             "Assign it in the inspector or ensure it's on the ARSession GameObject.");
     }
 
-    // Call this with a recording folder name selected from your UI
-    public bool StartPlayback(string folderName)
+    // Now void, not bool — result comes via PlaybackStartResult since it's async
+    public void StartPlayback(string folderName)
     {
-        string fullPath = Path.Combine(PlaybackFolder, folderName); // recording folder path
-        string recordingPath = Path.Combine(fullPath, "recording.mp4"); // ARCore mp4 recording file
-        string uri = new System.Uri(recordingPath).AbsoluteUri; // have to add this on Android
+        string fullPath = Path.Combine(PlaybackFolder, folderName);
+        string recordingPath = Path.Combine(fullPath, "recording.mp4");
+        string uri = new Uri(recordingPath).AbsoluteUri;
 
         Debug.Log($"Checking path: {recordingPath}");
         Debug.Log($"Exists: {File.Exists(recordingPath)}");
-        Debug.Log($"Exists: {File.Exists(uri)}");
 
         if (!File.Exists(recordingPath))
         {
             Debug.LogError($"Playback file not found: {recordingPath}");
-            return false;
+            PlaybackStartResult?.Invoke(false);
+            return;
         }
 
         if (subsystem == null)
@@ -61,34 +59,50 @@ public class ArPlaybackManager : MonoBehaviour
             {
                 Debug.LogError("ArPlaybackManager: ARCoreSessionSubsystem not available. " +
                                 "Is the ARSession active and ARCore the active XR loader?");
-                return false;
+                PlaybackStartResult?.Invoke(false);
+                return;
             }
-
         }
 
-        // Clear all trackables and anchor bookkeeping BEFORE starting playback,
-        // so the recorded session starts from a completely blank slate.
-        ClearSessionState();
+        StartCoroutine(StartPlaybackRoutine(uri));
+    }
 
-        playingBack = true;
+    private IEnumerator StartPlaybackRoutine(string uri)
+    {
+        ClearSessionState(); // arSession.Reset() + SessionReset event
+
+        // Reset() is asynchronous — wait until the session has actually left
+        // SessionInitializing before touching playback, or we hit the same race again.
+        float elapsed = 0f;
+        while (ARSession.state == ARSessionState.SessionInitializing && elapsed < ResetTimeoutSeconds)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (ARSession.state == ARSessionState.SessionInitializing)
+        {
+            Debug.LogError("ArPlaybackManager: Timed out waiting for session reset before starting playback.");
+            PlaybackStartResult?.Invoke(false);
+            yield break;
+        }
 
         Debug.Log($"Printing filepath : {uri}");
-
-        // StartPlaybackUri handles pause -> set dataset -> resume internally,
-        // which avoids the timing issues that cause SessionNotReady when doing it manually.
         ArStatus status = subsystem.StartPlaybackUri(uri);
         if (status != ArStatus.Success)
         {
             Debug.LogError($"Failed to start playback: {status}");
-            return false;
+            PlaybackStartResult?.Invoke(false);
+            yield break;
         }
 
-        return true;
+        playingBack = true;
+        PlaybackStartResult?.Invoke(true);
     }
 
     public string[] GetAvailableRecordings()
     {
-        return Directory.GetDirectories(PlaybackFolder); // recording folders inside the Recordings folder
+        return Directory.GetDirectories(PlaybackFolder);
     }
 
     public PlaybackStatus GetCurrentStatus()
@@ -98,7 +112,7 @@ public class ArPlaybackManager : MonoBehaviour
 
     public void StopPlayback()
     {
-        if (!playingBack) //  we never started a playback, therefore we do not need to actually stop
+        if (!playingBack)
         {
             Debug.Log("Ignoring stop request as no playback is occuring");
             return;
@@ -107,14 +121,12 @@ public class ArPlaybackManager : MonoBehaviour
         subsystem?.StopPlaybackUri();
         playingBack = false;
 
-        // Clear again on the way back to the live session, so it also starts blank.
         ClearSessionState();
     }
 
     private void ClearSessionState()
     {
-        arSession.Reset(); // destroys all trackables (anchors, tracked images, planes, etc.)
-        //anchorData.ResetAnchors(); // clear our own bookkeeping, since Reset() doesn't know about it
-        SessionReset?.Invoke(); // notify listeners (e.g. ImageTargetSession) to clear their own local state
+        arSession.Reset();
+        SessionReset?.Invoke();
     }
 }
