@@ -3,22 +3,25 @@ using UnityEngine.UIElements;
 
 public class PlaybackPanelController : MonoBehaviour
 {
-    [SerializeField] private PanelRenderer panelRenderer;
+    [SerializeField] private PanelRenderer playbackPanelRenderer;
+    [SerializeField] private PanelRenderer targetPanelRenderer;
 
     private VisualElement playbackPanel;
     private bool isVisible = true;
 
     void OnEnable()
     {
-        panelRenderer.RegisterUIReloadCallback(OnUIReload);
+        playbackPanelRenderer.RegisterUIReloadCallback(PlaybackOnUIReload);
+        targetPanelRenderer.RegisterUIReloadCallback(TargetOnUIReload);
     }
 
     void OnDisable()
     {
-        panelRenderer.UnregisterUIReloadCallback(OnUIReload);
+        playbackPanelRenderer.UnregisterUIReloadCallback(PlaybackOnUIReload);
+        targetPanelRenderer.UnregisterUIReloadCallback(TargetOnUIReload);
     }
 
-    void OnUIReload(PanelRenderer renderer, VisualElement rootElement, int version)
+    void PlaybackOnUIReload(PanelRenderer renderer, VisualElement rootElement, int version)
     {
         playbackPanel = rootElement.Q<VisualElement>("playback-panel");
 
@@ -26,9 +29,16 @@ public class PlaybackPanelController : MonoBehaviour
         toggleButton.clicked += TogglePanel;
     }
 
+    void TargetOnUIReload(PanelRenderer renderer, VisualElement rootElement, int version)
+    {
+        //var toggleButton = rootElement.Q<Button>("toggle-panel-button");
+        //toggleButton.clicked += TogglePanel;
+    }
+
     void TogglePanel()
     {
         isVisible = !isVisible;
         playbackPanel.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
+        //playbackPanelRenderer.enabled = isVisible;
     }
 }

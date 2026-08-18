@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+// Class to manage the UI elements and perform the relevant actions (when playback button pressed playback the relevant scene etc)
 [RequireComponent(typeof(PanelRenderer))]
 public class ArPlaybackUIToolkit : MonoBehaviour
 {
-    [SerializeField] private ArPlaybackManager playbackManager;
+    [SerializeField] private ArPlayback arPlayback;
 
     private PanelRenderer panelRenderer;
     private ListView recordingsList;
@@ -15,6 +16,9 @@ public class ArPlaybackUIToolkit : MonoBehaviour
     private Button playButton;
     private Button stopButton;
     private Button refreshButton;
+    private VisualElement playbackPanel;
+
+    private bool isVisible = true;
 
     private List<string> fileNames = new List<string>();
     private string selectedFile;
@@ -43,6 +47,10 @@ public class ArPlaybackUIToolkit : MonoBehaviour
     // Called once the visual tree from the assigned UXML is built and attached
     private void OnUIReload(PanelRenderer renderer, VisualElement root)
     {
+        playbackPanel = root.Q<VisualElement>("playback-panel");
+        var toggleButton = root.Q<Button>("toggle-panel-button");
+        toggleButton.clicked += TogglePanel;
+
         recordingsList = root.Q<ListView>("recordings-list");
         statusLabel = root.Q<Label>("status-label");
         selectedLabel = root.Q<Label>("selected-label");
@@ -69,7 +77,7 @@ public class ArPlaybackUIToolkit : MonoBehaviour
     private void RefreshList()
     {
         fileNames.Clear();
-        foreach (string path in playbackManager.GetAvailableRecordings())
+        foreach (string path in arPlayback.GetAvailableRecordings())
             fileNames.Add(Path.GetFileName(path));
 
         recordingsList.itemsSource = fileNames;
@@ -98,12 +106,19 @@ public class ArPlaybackUIToolkit : MonoBehaviour
     {
         if (string.IsNullOrEmpty(selectedFile)) return;
         statusLabel.text = $"Starting playback: {selectedFile}";
-        playbackManager.StartPlayback(selectedFile);
+        arPlayback.StartPlayback(selectedFile);
     }
 
     private void OnStopPressed()
     {
         statusLabel.text = "Playback stopped.";
-        playbackManager.StopPlayback();
+        arPlayback.StopPlayback();
+    }
+
+    void TogglePanel()
+    {
+        isVisible = !isVisible;
+        playbackPanel.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
+        //playbackPanelRenderer.enabled = isVisible;
     }
 }

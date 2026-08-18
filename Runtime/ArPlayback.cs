@@ -6,8 +6,9 @@ using UnityEngine;
 using UnityEngine.XR.ARCore;
 using UnityEngine.XR.ARFoundation;
 
+// Class the wrap up all the recording playback stuff of ARCore Extensions into neater functions that can be called from other classes.
 [RequireComponent(typeof(ARPlaybackManager))]
-public class ArPlaybackManager : MonoBehaviour
+public class ArPlayback : MonoBehaviour
 {
     [SerializeField] private ARSession arSession;
     [SerializeField] private ARPlaybackManager playbackManager;
