@@ -82,6 +82,7 @@ public class ArPlaybackUIToolkit : MonoBehaviour
 
         recordingsList.itemsSource = fileNames;
         recordingsList.Rebuild();
+        recordingsList.ClearSelection(); // clear the selected element
 
         selectedFile = null;
         playButton.SetEnabled(false);

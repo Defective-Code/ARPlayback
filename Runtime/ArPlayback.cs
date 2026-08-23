@@ -6,13 +6,15 @@ using UnityEngine;
 using UnityEngine.XR.ARCore;
 using UnityEngine.XR.ARFoundation;
 
+
 // Class the wrap up all the recording playback stuff of ARCore Extensions into neater functions that can be called from other classes.
 [RequireComponent(typeof(ARPlaybackManager))]
 public class ArPlayback : MonoBehaviour
 {
     [SerializeField] private ARSession arSession;
     [SerializeField] private ARPlaybackManager playbackManager;
-
+    [SerializeField] private GPSPlayback gpsPlayback;
+     
     private bool playingBack;
     private ARCoreSessionSubsystem subsystem;
 
@@ -36,14 +38,22 @@ public class ArPlayback : MonoBehaviour
                             "Assign it in the inspector or ensure it's on the ARSession GameObject.");
     }
 
+    private void Start()
+    {
+        // Check the permissions for this app
+        PermissionsChecker.CheckPermissions();
+    }
+
     // Now void, not bool — result comes via PlaybackStartResult since it's async
     public void StartPlayback(string folderName)
     {
         string fullPath = Path.Combine(PlaybackFolder, folderName);
         string recordingPath = Path.Combine(fullPath, "recording.mp4");
+        string gpsPath = Path.Combine(fullPath, "gps.json");
         string uri = new Uri(recordingPath).AbsoluteUri;
 
         Debug.Log($"Checking path: {recordingPath}");
+        Debug.Log($"Checking URI: {uri}");
         Debug.Log($"Exists: {File.Exists(recordingPath)}");
 
         if (!File.Exists(recordingPath))
@@ -64,8 +74,12 @@ public class ArPlayback : MonoBehaviour
                 return;
             }
         }
+        //new Uri(gpsPath).AbsoluteUri
+        gpsPlayback.ReadbackGPSData(gpsPath); // read and load the json gps data into the readback class
 
         StartCoroutine(StartPlaybackRoutine(uri));
+
+        gpsPlayback.StartGPSPlayback(); // start loading the read json data into the LocationData scriptable object
     }
 
     private IEnumerator StartPlaybackRoutine(string uri)
