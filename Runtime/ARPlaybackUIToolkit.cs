@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 public class ArPlaybackUIToolkit : MonoBehaviour
 {
     [SerializeField] private ArPlayback arPlayback;
+    //public UnityEngine.UI.Button toggleButton;
 
     private PanelRenderer panelRenderer;
     private ListView recordingsList;
@@ -47,9 +48,15 @@ public class ArPlaybackUIToolkit : MonoBehaviour
     // Called once the visual tree from the assigned UXML is built and attached
     private void OnUIReload(PanelRenderer renderer, VisualElement root)
     {
-        playbackPanel = root.Q<VisualElement>("playback-panel");
+        //var rootVisualElement = root.Q<VisualElement>("root-container");
+        root.pickingMode = PickingMode.Ignore; // disable picking up pointer events on the root visual element so we only capture events we want to capture
+        
         var toggleButton = root.Q<Button>("toggle-panel-button");
+        toggleButton.pickingMode = PickingMode.Position;
         toggleButton.clicked += TogglePanel;
+
+        playbackPanel = root.Q<VisualElement>("playback-panel");
+        playbackPanel.pickingMode = PickingMode.Position; // enable picking up pointer events on this parent VisualElement so the buttons work correctly.
 
         recordingsList = root.Q<ListView>("recordings-list");
         statusLabel = root.Q<Label>("status-label");
@@ -121,5 +128,11 @@ public class ArPlaybackUIToolkit : MonoBehaviour
         isVisible = !isVisible;
         playbackPanel.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
         //playbackPanelRenderer.enabled = isVisible;
+    }
+
+    void ToggleUIRenderer()
+    {
+        isVisible = !isVisible;
+        this.gameObject.SetActive(isVisible);
     }
 }
