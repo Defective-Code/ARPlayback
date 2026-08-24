@@ -112,6 +112,8 @@ public class GPSPlayback : MonoBehaviour
             locationData.locationDataUpdated.Invoke(); // call the locationDataUpdated event to call any functions that react to the location data being updated
 
             yield return new WaitForSeconds(interval); // wait for the interval time to have elapsed before updating the location to the next sample
+
+            dataIndex++;
         }
 
         // Restart the retreival of gps info if the app was doing it prior to playback.

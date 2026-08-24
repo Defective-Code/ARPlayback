@@ -1,5 +1,5 @@
 <UXML xmlns="UnityEngine.UIElements" editor-extension-mode="False">
-    <VisualElement name="root-container" style="flex-grow: 1;">
+    <VisualElement name="root-container" style="flex-grow: 1; background-color: rgb(255, 0, 0);">
         <VisualElement name="playback-panel" style="flex-grow: 1; padding: 12px; background-color: rgba(0, 0, 0, 0.725); color: rgb(255, 255, 255); display: flex;">
             <Label name="status-label" text="No recordings found."/>
             <Label name="selected-label" text="No file selected" style="margin-bottom: 8px;"/>
