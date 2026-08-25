@@ -16,6 +16,17 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "Unity",
+            "expression": "[6000.3,6000.5)",
+            "define": "ARPlayback_Unity_6_3"
+        },
+        {
+            "name": "Unity",
+            "expression": "[6000.5,6000.6)",
+            "define": "ARPlayback_Unity_6_5"
+        }
+    ],
     "noEngineReferences": false
 }
