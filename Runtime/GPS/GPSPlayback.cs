@@ -101,6 +101,11 @@ public class GPSPlayback : MonoBehaviour
         {
             locationDataService.StopService();
         }
+        else
+        {
+            Debug.LogWarning("LocationService instance was null so readback of GPS information was not successful.");
+            yield break; // get out of coroutine as there is no active lcoation readback.
+        }
 
         while (dataIndex < gpsRecordingData.samples.Count)
         {
