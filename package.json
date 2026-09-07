@@ -2,7 +2,7 @@
   "name": "com.hcilab.arplayback",
   "displayName": "ARPlayback",
   "version": "0.2.0",
-  "unity": "6000.5",
+  "unity": "6000.3",
   "unityRelease": "0f1",
   "description": "Runtime UI and management scripts for ARCore session recording playback.",
   "dependencies": {

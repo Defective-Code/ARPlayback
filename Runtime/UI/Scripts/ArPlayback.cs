@@ -54,7 +54,7 @@ public class ArPlayback : MonoBehaviour
 
         Debug.Log($"Checking path: {recordingPath}");
         Debug.Log($"Checking URI: {uri}");
-        Debug.Log($"Exists: {File.Exists(recordingPath)}");
+        Debug.Log($"Recording Exists: {File.Exists(recordingPath)}");
 
         if (!File.Exists(recordingPath))
         {

@@ -66,6 +66,13 @@ public class GPSPlayback : MonoBehaviour
 
         gpsRecordingData = JsonUtility.FromJson<GpsRecordingData>(json); // de-serialize the json string back into the class for parsing
 
+        if (gpsRecordingData == null || gpsRecordingData.samples == null || gpsRecordingData.samples.Count == 0)
+        {
+            Debug.LogError($"GPS JSON at {filepath} parsed to null/empty. Raw content length: {json.Length}");
+            return;
+        }
+
+        Debug.Log($"GPS data loaded: {gpsRecordingData.samples.Count} samples");
         interval = GetSampleInterval();
     }
 
@@ -95,6 +102,12 @@ public class GPSPlayback : MonoBehaviour
     // Coroutine to poll the GPS data on the correct intervals
     IEnumerator PollGPSData()
     {
+        if (gpsRecordingData == null || gpsRecordingData.samples == null || gpsRecordingData.samples.Count == 0)
+        {
+            Debug.LogError("PollGPSData started without valid GPS recording data. Call ReadbackGPSData first.");
+            yield break;
+        }
+
         // If our scene we want to playback in is actively retrieving the gps information, we want to temporariliy stop it while we playback
         RetrieveLocationData locationDataService = RetrieveLocationData.Instance;
         if (locationDataService != null)
