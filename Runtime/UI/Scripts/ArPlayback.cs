@@ -41,7 +41,7 @@ public class ArPlayback : MonoBehaviour
     private void Start()
     {
         // Check the permissions for this app
-        PermissionsChecker.CheckPermissions();
+        //PermissionsChecker.CheckPermissions();
     }
 
     // Now void, not bool — result comes via PlaybackStartResult since it's async

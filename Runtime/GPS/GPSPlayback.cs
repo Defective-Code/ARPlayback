@@ -124,13 +124,24 @@ public class GPSPlayback : MonoBehaviour
         {
             GpsSample sample = gpsRecordingData.samples[dataIndex];
 
+            if (locationData == null)
+            {
+                Debug.LogError("PollGPSData: locationData ScriptableObject reference is null.");
+                yield break;
+            }
+
             locationData.latitude = sample.latitude;
             locationData.longitude = sample.longitude;
             locationData.altitude = sample.altitude;
-            locationData.locationDataUpdated.Invoke(); // call the locationDataUpdated event to call any functions that react to the location data being updated
 
-            yield return new WaitForSeconds(interval); // wait for the interval time to have elapsed before updating the location to the next sample
+            if (locationData.locationDataUpdated == null)
+            {
+                Debug.LogWarning("PollGPSData: locationData.locationDataUpdated UnityEvent is null OR simply has no subscribers within the scene (meaning no function is being exectued when this Action is invoked).");
+                //yield break;
+            }
+            locationData.locationDataUpdated?.Invoke(); // check that the delegate has at least one subscribed function before invoking - otherwise causes a crash
 
+            yield return new WaitForSeconds(interval);
             dataIndex++;
         }
 
